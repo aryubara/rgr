@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -std=c++20 -Wall -Wextra -I.
 LDFLAGS = -L. -lAffine -lTEA
 
-TARGET = RGREncryptionAlgorithmRGR
+TARGET = EncryptionAlgorithmRGR
 
 # ИСХОДНЫЕ ФАЙЛЫ
 SRC = main.cpp Utilities/input.cpp Utilities/fileManager.cpp 
