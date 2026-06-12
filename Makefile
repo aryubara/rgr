@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall -Wextra -I.
+CXXFLAGS = -std=c++17 -Wall -Wextra -I.
 LDFLAGS = -ldl
 
 TARGET = RGREncryptionAlgorithmRGR
