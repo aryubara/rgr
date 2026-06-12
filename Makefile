@@ -11,21 +11,20 @@ SRC = main.cpp LibraryManager.cpp Utilities/fileManager.cpp Utilities/cryptoMath
 all: libAffine.so libTEA.so $(TARGET)
 
 # СБОРКА БИБЛИОТЕК
-
 libAffine.so:
-$(CXX) $(CXXFLAGS) -shared -fPIC Affine/affine.cpp Utilities/cryptoMath.cpp -o libAffine.so
+	$(CXX) $(CXXFLAGS) -shared -fPIC Affine/affine.cpp Utilities/cryptoMath.cpp -o libAffine.so
 
 libTEA.so:
-$(CXX) $(CXXFLAGS) -shared -fPIC TEA/tea.cpp -o libTEA.so
+	$(CXX) $(CXXFLAGS) -shared -fPIC TEA/tea.cpp -o libTEA.so
 
 # СБОРКА ПРОГРАММЫ
 $(TARGET): $(SRC)
-$(CXX) $(CXXFLAGS) $(SRC) $(LDFLAGS) -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $(SRC) $(LDFLAGS) -o $(TARGET)
 
 # ЗАПУСК
 run: all
-LD_LIBRARY_PATH=. ./$(TARGET)
+	LD_LIBRARY_PATH=. ./$(TARGET)
 
 # ОЧИСТКА
 clean:
-rm -f $(TARGET) libAffine.so libTEA.so
+	rm -f $(TARGET) libAffine.so libTEA.so
