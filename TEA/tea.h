@@ -12,3 +12,13 @@ const uint32_t BLOCK_SIZE = 8; //Размер блока
 //ИНИЦИАЛИЗЦИЯ ФУНКЦИЙ
 std::vector<uint8_t> teaEncrypt(const std::vector<uint8_t>& data, const uint32_t key[4]);
 std::vector<uint8_t> teaDecrypt(const std::vector<uint8_t>& data, const uint32_t key[4]);
+
+
+//ИНТЕРФЕЙС ДИНАМИЧЕСКОЙ БИБЛИОТЕКИ
+extern "C" {
+
+const char* getName();
+
+void encrypt(const std::vector<uint8_t>& inputData, std::vector<uint8_t>& outputData, const uint32_t key[4]);
+void decrypt(const std::vector<uint8_t>& inputData, std::vector<uint8_t>& outputData, const uint32_t key[4]);
+}
