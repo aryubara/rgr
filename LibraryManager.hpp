@@ -21,6 +21,20 @@ typedef void (*TeaCipherFunc)(
     const uint32_t[4]
 );
 
+//Скитала
+typedef void (*ScytaleCipherFunc)(
+    const vector<uint8_t>&,
+    vector<uint8_t>&,
+    uint32_t
+);
+
+// XOR
+typedef void (*XorCipherFunc)(
+    const vector<uint8_t>&,
+    vector<uint8_t>&,
+    const char*
+);
+
 //Название алгоритма
 typedef const char* (*GetNameFunc)();
 
@@ -43,4 +57,10 @@ public:
 
     TeaCipherFunc teaEncrypt;
     TeaCipherFunc teaDecrypt;
+
+    ScytaleCipherFunc scytaleEncrypt;
+    ScytaleCipherFunc scytaleDecrypt;
+
+    XorCipherFunc xorEncrypt;
+    XorCipherFunc xorDecrypt;
 };

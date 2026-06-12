@@ -11,7 +11,11 @@ LibraryManager::LibraryManager()
       affineEncrypt(nullptr),
       affineDecrypt(nullptr),
       teaEncrypt(nullptr),
-      teaDecrypt(nullptr) {
+      teaDecrypt(nullptr),
+      scytaleEncrypt(nullptr),
+      scytaleDecrypt(nullptr),
+      xorEncrypt(nullptr),
+      xorDecrypt(nullptr) {
 }
 
 LibraryManager::~LibraryManager() {
@@ -91,7 +95,50 @@ bool LibraryManager::loadLibrary(const string& path) {
             return false;
         }
     }
-    else {
+    else if (string(name) == "Scytale Cipher") {
+
+    scytaleEncrypt =
+        reinterpret_cast<ScytaleCipherFunc>(
+            dlsym(libraryHandle, "encrypt")
+        );
+
+    scytaleDecrypt =
+        reinterpret_cast<ScytaleCipherFunc>(
+            dlsym(libraryHandle, "decrypt")
+        );
+
+    if (scytaleEncrypt == nullptr ||
+        scytaleDecrypt == nullptr) {
+
+        cerr << "Ошибка получения функций Scytale\n";
+
+        unloadLibrary();
+
+        return false;
+    }
+    }
+    else if (string(name) == "XOR Cipher") {
+
+    xorEncrypt =
+        reinterpret_cast<XorCipherFunc>(
+            dlsym(libraryHandle, "encrypt")
+        );
+
+    xorDecrypt =
+        reinterpret_cast<XorCipherFunc>(
+            dlsym(libraryHandle, "decrypt")
+        );
+
+    if (xorEncrypt == nullptr ||
+        xorDecrypt == nullptr) {
+
+        cerr << "Ошибка получения функций XOR\n";
+
+        unloadLibrary();
+
+        return false;
+    }
+    }else {
 
         cerr << "Неизвестный алгоритм: "
              << name << '\n';
@@ -120,4 +167,10 @@ void LibraryManager::unloadLibrary() {
 
     teaEncrypt = nullptr;
     teaDecrypt = nullptr;
+
+    scytaleEncrypt = nullptr;
+    scytaleDecrypt = nullptr;
+
+    xorEncrypt = nullptr;
+    xorDecrypt = nullptr;
 }
