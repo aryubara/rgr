@@ -21,10 +21,4 @@ void initState(vector<uint32_t>& state, const uint32_t key_words[8], uint32_t co
 
 void chacha20_encrypt(vector <uint8_t>& plaintext, const uint32_t key_words[8], uint32_t nonce[3], vector<uint8_t>& ciphertext);
 
-void encryptFile(const string& inputFile, const string& outputFile, const uint32_t key_words[8], uint32_t nonce[3]);
-
-void decryptFile(const string& inputFile, const string& outputFile, const uint32_t key_words[8], uint32_t nonce[3]);
-
-void inputChaCha20();
-
 #endif
