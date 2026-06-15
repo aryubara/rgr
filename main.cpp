@@ -45,7 +45,7 @@ int main() {
         cout << "0 - Выход\n";
         cout << "Выберите алгоритм: ";
 
-        cin >> choice;
+        inputNumber(choice, "Выберите алгоритм: ", 0, 6);
 
         switch (static_cast<Menu>(choice)) {
             case Menu::XOR: {
@@ -57,26 +57,17 @@ int main() {
 
                 int modeChoice;
 
-                if (!inputMode(modeChoice)) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputMode(modeChoice);
 
                 int keyMode;
 
-                if (!inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ")) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ");
 
                 string key;
 
                 if (keyMode == 1) {
 
-                    if (!inputXorKey(key)) {
-                        manager.unloadLibrary();
-                        break;
-                    }
+                    inputXorKey(key);
 
                 } else {
 
@@ -89,7 +80,6 @@ int main() {
                     for (int i = 0; i < 16; i++) {
                         key += static_cast<char>(dist(generator));
                     }
-
                     cout << "\nСгенерированный ключ: " << key << '\n';
                 }
 
@@ -99,9 +89,7 @@ int main() {
 
                         vector<uint8_t> inputData;
 
-                        if (!inputTextData(inputData)) {
-                            break;
-                        }
+                        inputTextData(inputData);
 
                         try {
 
@@ -138,9 +126,7 @@ int main() {
 
                         string inputPath;
 
-                        if (!inputFilePath(inputPath)) {
-                            break;
-                        }
+                        inputFilePath(inputPath);
 
                         try {
 
@@ -192,26 +178,17 @@ int main() {
 
                 int modeChoice;
 
-                if (!inputMode(modeChoice)) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputMode(modeChoice);
 
                 int keyMode;
 
-                if (!inputKeyMode(keyMode, "Ввести количество столбцов", "Сгенерировать количество столбцов")) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputKeyMode(keyMode, "Ввести количество столбцов", "Сгенерировать количество столбцов");
 
                 uint32_t columns;
 
                 if (keyMode == 1) {
 
-                    if (!inputColumns(columns)) {
-                        manager.unloadLibrary();
-                        break;
-                    }
+                    inputColumns(columns);
 
                 } else {
 
@@ -231,9 +208,7 @@ int main() {
 
                         vector<uint8_t> inputData;
 
-                        if (!inputTextData(inputData)) {
-                            break;
-                        }
+                        inputTextData(inputData);
 
                         try {
 
@@ -270,9 +245,7 @@ int main() {
 
                         string inputPath;
 
-                        if (!inputFilePath(inputPath)) {
-                            break;
-                        }
+                        inputFilePath(inputPath);
 
                         try {
 
@@ -324,26 +297,17 @@ int main() {
 
                 int modeChoice;
 
-                if (!inputMode(modeChoice)) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputMode(modeChoice);
 
                 int keyMode;
 
-                if (!inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ")) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ");
 
                 uint32_t a, b;
 
                 if (keyMode == 1) {
 
-                    if (!inputAffineKey(a, b)) {
-                        manager.unloadLibrary();
-                        break;
-                    }
+                    inputAffineKey(a, b);
 
                 } else {
 
@@ -370,9 +334,7 @@ int main() {
 
                         vector<uint8_t> inputData;
 
-                        if (!inputTextData(inputData)) {
-                            break;
-                        }
+                        inputTextData(inputData);
 
                         try {
 
@@ -409,9 +371,7 @@ int main() {
 
                         string inputPath;
 
-                        if (!inputFilePath(inputPath)) {
-                            break;
-                        }
+                        inputFilePath(inputPath);
 
                         try {
 
@@ -462,28 +422,17 @@ int main() {
 
                 int modeChoice;
 
-                if (!inputMode(modeChoice)) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputMode(modeChoice);
 
                 int keyMode;
 
-                if (!inputKeyMode(keyMode,
-                                "Ввести ключ вручную",
-                                "Сгенерировать ключ")) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ");
 
                 uint32_t key[4];
 
                 if (keyMode == 1) {
 
-                    if (!inputTeaKey(key)) {
-                        manager.unloadLibrary();
-                        break;
-                    }
+                    inputTeaKey(key);
 
                 } else {
 
@@ -509,9 +458,7 @@ int main() {
 
                         vector<uint8_t> inputData;
 
-                        if (!inputTextData(inputData)) {
-                            break;
-                        }
+                        inputTextData(inputData);
 
                         try {
 
@@ -548,9 +495,7 @@ int main() {
 
                         string inputPath;
 
-                        if (!inputFilePath(inputPath)) {
-                            break;
-                        }
+                        inputFilePath(inputPath);
 
                         try {
 
@@ -602,27 +547,17 @@ int main() {
 
                 int modeChoice;
 
-                if (!inputMode(modeChoice)) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputMode(modeChoice);
 
                 int keyMode;
 
-                if (!inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ")) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ");
 
                 uint32_t key[8];
 
                 if (keyMode == 1) {
 
-                    if (!inputSerpentKey(key)) {
-                        cout << "Ошибка ввода ключа!\n";
-                        manager.unloadLibrary();
-                        break;
-                    }
+                    inputSerpentKey(key);
 
                 } else {
 
@@ -651,9 +586,7 @@ int main() {
 
                         vector<uint8_t> inputData;
 
-                        if (!inputTextData(inputData)) {
-                            break;
-                        }
+                        inputTextData(inputData);
 
                         try {
 
@@ -690,9 +623,7 @@ int main() {
 
                         string inputPath;
 
-                        if (!inputFilePath(inputPath)) {
-                            break;
-                        }
+                        inputFilePath(inputPath);
 
                         try {
 
@@ -745,29 +676,18 @@ int main() {
 
                 int modeChoice;
 
-                if (!inputMode(modeChoice)) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputMode(modeChoice);
 
                 int keyMode;
 
-                if (!inputKeyMode(keyMode,
-                                "Ввести ключ и nonce вручную", "Сгенерировать ключ и nonce")) {
-                    manager.unloadLibrary();
-                    break;
-                }
+                inputKeyMode(keyMode, "Ввести ключ и nonce вручную", "Сгенерировать ключ и nonce");
 
                 uint32_t key[8];
                 uint32_t nonce[3];
 
                 if (keyMode == 1) {
 
-                    if (!inputChaCha20Key(key, nonce)) {
-                        cout << "Ошибка ввода ключа или nonce!\n";
-                        manager.unloadLibrary();
-                        break;
-                    }
+                    !inputChaCha20Key(key, nonce);
 
                 } else {
 
@@ -808,9 +728,7 @@ int main() {
 
                         vector<uint8_t> inputData;
 
-                        if (!inputTextData(inputData)) {
-                            break;
-                        }
+                        inputTextData(inputData);
 
                         try {
 
@@ -847,9 +765,7 @@ int main() {
 
                         string inputPath;
 
-                        if (!inputFilePath(inputPath)) {
-                            break;
-                        }
+                        inputFilePath(inputPath);
 
                         try {
 
@@ -893,7 +809,7 @@ int main() {
             }
 
             case Menu::EXIT:
-                cout << "Завершение работы программы...\n";
+                cout << "Завершение работы программы\n";
                 break;
 
             default:
