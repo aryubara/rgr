@@ -207,15 +207,15 @@ bool inputTeaKey(uint32_t key[4]) {
     return true;
 }
 
-bool inputIdeaKey(uint16_t key[8]) {
-    cout << "Введите 8 частей ключа:\n";
+bool inputSerpentKey(uint32_t key[8]) {
+    cout << "Введите 8 частей ключа (HEX):\n";
+
     for (int i = 0; i < 8; i++) {
-        int value;
-        if (!inputNumber(value, "key[" + to_string(i) + "] = ", 0, 65535)) {
+        if (!inputHex(key[i], "key[" + to_string(i) + "] = ")) {
             return false;
         }
-        key[i] = value;
     }
+
     return true;
 }
 
