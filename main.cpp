@@ -1,6 +1,7 @@
 #include "LibraryManager.hpp"
 #include "Utilities/fileManager.h"
 #include "Utilities/cryptoMath.h"
+#include "Utilities/crypto_utils.h"
 
 #include<iostream>
 #include<vector>
@@ -18,7 +19,7 @@ enum class Menu {
     SCYTALE = 2,
     AFFINE = 3,
     TEA = 4, 
-    IDEA = 5,
+    SERPENT = 5,
     CHACHA20 = 6
 };
 
@@ -36,10 +37,10 @@ int main() {
 
     do {
         cout << "\n1 - XOR\n";
-        cout << "2 - Шифр Скиттла\n";
+        cout << "2 - Шифр Скитала\n";
         cout << "3 - Аффинный шифр\n";
         cout << "4 - TEA\n";
-        cout << "5 - IDEA\n";
+        cout << "5 - Serpent\n";
         cout << "6 - ChaCha20\n";
         cout << "0 - Выход\n";
         cout << "Выберите алгоритм: ";
@@ -47,7 +48,6 @@ int main() {
         cin >> choice;
 
         switch (static_cast<Menu>(choice)) {
-
             case Menu::XOR: {
 
                 if (!manager.loadLibrary("./libXOR.so")) {
@@ -57,198 +57,60 @@ int main() {
 
                 int modeChoice;
 
-                cout << "\n1 - Ввод текста\n";
-                cout << "2 - Работа с файлом\n";
-                cout << "Выберите режим: ";
-
-                cin >> modeChoice;
-
-                cin.ignore();
-
-                string key;
-
-                cout << "Введите ключ: ";
-                getline(cin, key);
-
-                switch (static_cast<Mode>(modeChoice)) {
-
-                    case Mode::TEXT: {
-
-                        string text;
-
-                        cout << "Введите текст: ";
-                        getline(cin, text);
-
-                        vector<uint8_t> inputData(
-                            text.begin(),
-                            text.end()
-                        );
-
-                        try {
-
-                            vector<uint8_t> encryptedData;
-                            vector<uint8_t> decryptedData;
-
-                            manager.xorEncrypt(
-                                inputData,
-                                encryptedData,
-                                key.c_str()
-                            );
-
-                            manager.xorDecrypt(
-                                encryptedData,
-                                decryptedData,
-                                key.c_str()
-                            );
-
-                            cout << "\nЗашифрованный текст:\n";
-
-                            for (uint8_t byte : encryptedData) {
-                                cout << static_cast<int>(byte)
-                                    << ' ';
-                            }
-
-                            cout << "\n\nРасшифрованный текст:\n";
-
-                            for (uint8_t byte : decryptedData) {
-                                cout << static_cast<char>(byte);
-                            }
-
-                            cout << '\n';
-                        }
-                        catch (const exception& error) {
-
-                            cout << "Ошибка: "
-                                << error.what()
-                                << '\n';
-                        }
-
-                        break;
-                    }
-
-                    case Mode::FILE: {
-
-                        string inputPath;
-
-                        cout << "Введите путь к файлу: ";
-                        cin >> inputPath;
-
-                        try {
-
-                            vector<uint8_t> inputData =
-                                readFile(inputPath);
-
-                            vector<uint8_t> encryptedData;
-                            vector<uint8_t> decryptedData;
-
-                            manager.xorEncrypt(
-                                inputData,
-                                encryptedData,
-                                key.c_str()
-                            );
-
-                            filesystem::path path(inputPath);
-
-                            string encryptedPath =
-                                "encrypted_" +
-                                path.filename().string();
-
-                            writeFile(
-                                encryptedPath,
-                                encryptedData
-                            );
-
-                            manager.xorDecrypt(
-                                encryptedData,
-                                decryptedData,
-                                key.c_str()
-                            );
-
-                            string decryptedPath =
-                                "decrypted_" +
-                                path.filename().string();
-
-                            writeFile(
-                                decryptedPath,
-                                decryptedData
-                            );
-
-                            cout << "\nСоздан файл:\n"
-                                << encryptedPath
-                                << '\n';
-
-                            cout << "\nСоздан файл:\n"
-                                << decryptedPath
-                                << '\n';
-                        }
-                        catch (const exception& error) {
-
-                            cout << "Ошибка: "
-                                << error.what()
-                                << '\n';
-                        }
-
-                        break;
-                    }
-
-                    default:
-
-                        cout << "Некорректный режим\n";
-                }
-
-                manager.unloadLibrary();
-
-                break;
-            }
-            case Menu::SCYTALE: {
-
-                if (!manager.loadLibrary("./libScytale.so")) {
-                    cout << "Алгоритм недоступен\n";
+                if (!inputMode(modeChoice)) {
+                    manager.unloadLibrary();
                     break;
                 }
 
-                int modeChoice;
+                int keyMode;
 
-                cout << "\n1 - Ввод текста\n";
-                cout << "2 - Работа с файлом\n";
-                cout << "Выберите режим: ";
+                if (!inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ")) {
+                    manager.unloadLibrary();
+                    break;
+                }
 
-                cin >> modeChoice;
+                string key;
 
-                uint32_t columns;
+                if (keyMode == 1) {
 
-                cout << "Введите количество столбцов: ";
-                cin >> columns;
+                    if (!inputXorKey(key)) {
+                        manager.unloadLibrary();
+                        break;
+                    }
+
+                } else {
+
+                    random_device rd;
+                    mt19937 generator(rd());
+                    uniform_int_distribution<int> dist(33, 126);
+
+                    key.clear();
+
+                    for (int i = 0; i < 16; i++) {
+                        key += static_cast<char>(dist(generator));
+                    }
+
+                    cout << "\nСгенерированный ключ: " << key << '\n';
+                }
 
                 switch (static_cast<Mode>(modeChoice)) {
 
                     case Mode::TEXT: {
 
-                        cin.ignore();
+                        vector<uint8_t> inputData;
 
-                        string text;
-
-                        cout << "Введите текст: ";
-                        getline(cin, text);
-
-                        vector<uint8_t> inputData(text.begin(), text.end());
+                        if (!inputTextData(inputData)) {
+                            break;
+                        }
 
                         try {
 
                             vector<uint8_t> encryptedData;
                             vector<uint8_t> decryptedData;
 
-                            manager.scytaleEncrypt(
-                                inputData,
-                                encryptedData,
-                                columns
-                            );
+                            manager.xorEncrypt(inputData, encryptedData, key.c_str());
 
-                            manager.scytaleDecrypt(
-                                encryptedData,
-                                decryptedData,
-                                columns
-                            );
+                            manager.xorDecrypt(encryptedData, decryptedData, key.c_str());
 
                             cout << "\nЗашифрованный текст:\n";
 
@@ -263,12 +125,10 @@ int main() {
                             }
 
                             cout << '\n';
-                        }
-                        catch (const exception& error) {
 
-                            cout << "Ошибка: "
-                                << error.what()
-                                << '\n';
+                        } catch (const exception& error) {
+
+                            cout << "Ошибка: " << error.what() << '\n';
                         }
 
                         break;
@@ -278,69 +138,175 @@ int main() {
 
                         string inputPath;
 
-                        cout << "Введите путь к файлу: ";
-                        cin >> inputPath;
+                        if (!inputFilePath(inputPath)) {
+                            break;
+                        }
 
                         try {
 
-                            vector<uint8_t> inputData =
-                                readFile(inputPath);
+                            vector<uint8_t> inputData = readFile(inputPath);
 
                             vector<uint8_t> encryptedData;
                             vector<uint8_t> decryptedData;
 
-                            manager.scytaleEncrypt(
-                                inputData,
-                                encryptedData,
-                                columns
-                            );
+                            manager.xorEncrypt(inputData, encryptedData, key.c_str());
 
                             filesystem::path path(inputPath);
 
-                            string encryptedPath =
-                                "encrypted_" +
-                                path.filename().string();
+                            string encryptedPath = "encrypted_" + path.filename().string();
 
-                            writeFile(
-                                encryptedPath,
-                                encryptedData
-                            );
+                            writeFile(encryptedPath, encryptedData);
 
-                            manager.scytaleDecrypt(
-                                encryptedData,
-                                decryptedData,
-                                columns
-                            );
+                            manager.xorDecrypt(encryptedData, decryptedData, key.c_str());
 
-                            string decryptedPath =
-                                "decrypted_" +
-                                path.filename().string();
+                            string decryptedPath = "decrypted_" + path.filename().string();
 
-                            writeFile(
-                                decryptedPath,
-                                decryptedData
-                            );
+                            writeFile(decryptedPath, decryptedData);
 
-                            cout << "\nСоздан файл:\n"
-                                << encryptedPath
-                                << '\n';
+                            cout << "\nСоздан файл:\n" << encryptedPath << '\n';
+                            cout << "\nСоздан файл:\n" << decryptedPath << '\n';
 
-                            cout << "\nСоздан файл:\n"
-                                << decryptedPath
-                                << '\n';
-                        }
-                        catch (const exception& error) {
+                        } catch (const exception& error) {
 
-                            cout << "Ошибка: "
-                                << error.what()
-                                << '\n';
+                            cout << "Ошибка: " << error.what() << '\n';
                         }
 
                         break;
                     }
 
                     default:
+                        cout << "Некорректный режим\n";
+                }
 
+                manager.unloadLibrary();
+
+                break;
+            }
+
+            case Menu::SCYTALE: {
+
+                if (!manager.loadLibrary("./libScytale.so")) {
+                    cout << "Алгоритм недоступен\n";
+                    break;
+                }
+
+                int modeChoice;
+
+                if (!inputMode(modeChoice)) {
+                    manager.unloadLibrary();
+                    break;
+                }
+
+                int keyMode;
+
+                if (!inputKeyMode(keyMode, "Ввести количество столбцов", "Сгенерировать количество столбцов")) {
+                    manager.unloadLibrary();
+                    break;
+                }
+
+                uint32_t columns;
+
+                if (keyMode == 1) {
+
+                    if (!inputColumns(columns)) {
+                        manager.unloadLibrary();
+                        break;
+                    }
+
+                } else {
+
+                    random_device rd;
+                    mt19937 generator(rd());
+                    uniform_int_distribution<uint32_t> dist(2, 100);
+
+                    columns = dist(generator);
+
+                    cout << "\nСгенерированное количество столбцов: "
+                        << columns << '\n';
+                }
+
+                switch (static_cast<Mode>(modeChoice)) {
+
+                    case Mode::TEXT: {
+
+                        vector<uint8_t> inputData;
+
+                        if (!inputTextData(inputData)) {
+                            break;
+                        }
+
+                        try {
+
+                            vector<uint8_t> encryptedData;
+                            vector<uint8_t> decryptedData;
+
+                            manager.scytaleEncrypt(inputData, encryptedData, columns);
+
+                            manager.scytaleDecrypt(encryptedData, decryptedData, columns);
+
+                            cout << "\nЗашифрованный текст:\n";
+
+                            for (uint8_t byte : encryptedData) {
+                                cout << static_cast<int>(byte) << ' ';
+                            }
+
+                            cout << "\n\nРасшифрованный текст:\n";
+
+                            for (uint8_t byte : decryptedData) {
+                                cout << static_cast<char>(byte);
+                            }
+
+                            cout << '\n';
+
+                        } catch (const exception& error) {
+
+                            cout << "Ошибка: " << error.what() << '\n';
+                        }
+
+                        break;
+                    }
+
+                    case Mode::FILE: {
+
+                        string inputPath;
+
+                        if (!inputFilePath(inputPath)) {
+                            break;
+                        }
+
+                        try {
+
+                            vector<uint8_t> inputData = readFile(inputPath);
+
+                            vector<uint8_t> encryptedData;
+                            vector<uint8_t> decryptedData;
+
+                            manager.scytaleEncrypt(inputData, encryptedData, columns);
+
+                            filesystem::path path(inputPath);
+
+                            string encryptedPath = "encrypted_" + path.filename().string();
+
+                            writeFile(encryptedPath, encryptedData);
+
+                            manager.scytaleDecrypt(encryptedData, decryptedData, columns);
+
+                            string decryptedPath = "decrypted_" + path.filename().string();
+
+                            writeFile(decryptedPath, decryptedData);
+
+                            cout << "\nСоздан файл:\n" << encryptedPath << '\n';
+                            cout << "\nСоздан файл:\n" << decryptedPath << '\n';
+
+                        } catch (const exception& error) {
+
+                            cout << "Ошибка: " << error.what() << '\n';
+                        }
+
+                        break;
+                    }
+
+                    default:
                         cout << "Некорректный режим\n";
                 }
 
@@ -358,31 +324,28 @@ int main() {
 
                 int modeChoice;
 
-                cout << "\n1 - Ввод текста\n";
-                cout << "2 - Работа с файлом\n";
-                cout << "Выберите режим: ";
-
-                cin >> modeChoice;
-
-                uint32_t a, b;
+                if (!inputMode(modeChoice)) {
+                    manager.unloadLibrary();
+                    break;
+                }
 
                 int keyMode;
 
-                cout << "\n1 - Ввести ключ вручную\n";
-                cout << "2 - Сгенерировать ключ\n";
-                cout << "Выберите режим: ";
+                if (!inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ")) {
+                    manager.unloadLibrary();
+                    break;
+                }
 
-                cin >> keyMode;
+                uint32_t a, b;
 
                 if (keyMode == 1) {
 
-                    cout << "Введите ключ a: ";
-                    cin >> a;
+                    if (!inputAffineKey(a, b)) {
+                        manager.unloadLibrary();
+                        break;
+                    }
 
-                    cout << "Введите ключ b: ";
-                    cin >> b;
-                }
-                else if (keyMode == 2) {
+                } else {
 
                     random_device rd;
                     mt19937 generator(rd());
@@ -400,34 +363,23 @@ int main() {
                     cout << "a = " << a << '\n';
                     cout << "b = " << b << '\n';
                 }
-                else {
-
-                    cout << "Некорректный режим\n";
-
-                    manager.unloadLibrary();
-
-                    break;
-                }
 
                 switch (static_cast<Mode>(modeChoice)) {
 
                     case Mode::TEXT: {
 
-                        cin.ignore();
+                        vector<uint8_t> inputData;
 
-                        string text;
-
-                        cout << "Введите текст: ";
-                        getline(cin, text);
-
-                        vector<uint8_t> inputData(text.begin(), text.end());
+                        if (!inputTextData(inputData)) {
+                            break;
+                        }
 
                         try {
 
                             vector<uint8_t> encryptedData;
                             vector<uint8_t> decryptedData;
 
-                            manager.affineEncrypt(inputData,encryptedData, a, b);
+                            manager.affineEncrypt(inputData, encryptedData, a, b);
 
                             manager.affineDecrypt(encryptedData, decryptedData, a, b);
 
@@ -444,8 +396,8 @@ int main() {
                             }
 
                             cout << '\n';
-                        }
-                        catch (const exception& error) {
+
+                        } catch (const exception& error) {
 
                             cout << "Ошибка: " << error.what() << '\n';
                         }
@@ -457,8 +409,9 @@ int main() {
 
                         string inputPath;
 
-                        cout << "Введите путь к файлу: ";
-                        cin >> inputPath;
+                        if (!inputFilePath(inputPath)) {
+                            break;
+                        }
 
                         try {
 
@@ -482,10 +435,9 @@ int main() {
                             writeFile(decryptedPath, decryptedData);
 
                             cout << "\nСоздан файл:\n" << encryptedPath << '\n';
-
                             cout << "\nСоздан файл:\n" << decryptedPath << '\n';
-                        }
-                        catch (const exception& error) {
+
+                        } catch (const exception& error) {
 
                             cout << "Ошибка: " << error.what() << '\n';
                         }
@@ -501,7 +453,6 @@ int main() {
 
                 break;
             }
-
             case Menu::TEA: {
 
                 if (!manager.loadLibrary("./libTEA.so")) {
@@ -511,33 +462,30 @@ int main() {
 
                 int modeChoice;
 
-                cout << "\n1 - Ввод текста\n";
-                cout << "2 - Работа с файлом\n";
-                cout << "Выберите режим: ";
-
-                cin >> modeChoice;
-
-                uint32_t key[4];
+                if (!inputMode(modeChoice)) {
+                    manager.unloadLibrary();
+                    break;
+                }
 
                 int keyMode;
 
-                cout << "\n1 - Ввести ключ вручную\n";
-                cout << "2 - Сгенерировать ключ\n";
-                cout << "Выберите режим: ";
+                if (!inputKeyMode(keyMode,
+                                "Ввести ключ вручную",
+                                "Сгенерировать ключ")) {
+                    manager.unloadLibrary();
+                    break;
+                }
 
-                cin >> keyMode;
+                uint32_t key[4];
 
                 if (keyMode == 1) {
 
-                    cout << "Введите 4 части ключа:\n";
-
-                    for (uint32_t i = 0; i < 4; i++) {
-
-                        cout << "key[" << i << "] = ";
-                        cin >> key[i];
+                    if (!inputTeaKey(key)) {
+                        manager.unloadLibrary();
+                        break;
                     }
-                }
-                else if (keyMode == 2) {
+
+                } else {
 
                     random_device rd;
                     mt19937 generator(rd());
@@ -554,27 +502,16 @@ int main() {
                         cout << "key[" << i << "] = " << key[i] << '\n';
                     }
                 }
-                else {
-
-                    cout << "Некорректный режим\n";
-
-                    manager.unloadLibrary();
-
-                    break;
-                }
 
                 switch (static_cast<Mode>(modeChoice)) {
 
                     case Mode::TEXT: {
 
-                        cin.ignore();
+                        vector<uint8_t> inputData;
 
-                        string text;
-
-                        cout << "Введите текст: ";
-                        getline(cin, text);
-
-                        vector<uint8_t> inputData(text.begin(), text.end());
+                        if (!inputTextData(inputData)) {
+                            break;
+                        }
 
                         try {
 
@@ -598,8 +535,8 @@ int main() {
                             }
 
                             cout << '\n';
-                        }
-                        catch (const exception& error) {
+
+                        } catch (const exception& error) {
 
                             cout << "Ошибка: " << error.what() << '\n';
                         }
@@ -611,8 +548,9 @@ int main() {
 
                         string inputPath;
 
-                        cout << "Введите путь к файлу: ";
-                        cin >> inputPath;
+                        if (!inputFilePath(inputPath)) {
+                            break;
+                        }
 
                         try {
 
@@ -636,10 +574,9 @@ int main() {
                             writeFile(decryptedPath, decryptedData);
 
                             cout << "\nСоздан файл:\n" << encryptedPath << '\n';
+                            cout << "\nСоздан файл:\n" << decryptedPath << '\n';
 
-                            cout << "\nСоздан файл:\n" << decryptedPath<< '\n';
-                        }
-                        catch (const exception& error) {
+                        } catch (const exception& error) {
 
                             cout << "Ошибка: " << error.what() << '\n';
                         }
@@ -648,7 +585,6 @@ int main() {
                     }
 
                     default:
-
                         cout << "Некорректный режим\n";
                 }
 
@@ -657,22 +593,314 @@ int main() {
                 break;
             }
 
-            //case Menu::IDEA{}
+            case Menu::SERPENT: {
 
-            //case Menu::CHACHA20{}
-            
+                if (!manager.loadLibrary("./libSerpent.so")) {
+                    cout << "Алгоритм недоступен\n";
+                    break;
+                }
+
+                int modeChoice;
+
+                if (!inputMode(modeChoice)) {
+                    manager.unloadLibrary();
+                    break;
+                }
+
+                int keyMode;
+
+                if (!inputKeyMode(keyMode, "Ввести ключ вручную", "Сгенерировать ключ")) {
+                    manager.unloadLibrary();
+                    break;
+                }
+
+                uint32_t key[8];
+
+                if (keyMode == 1) {
+
+                    if (!inputSerpentKey(key)) {
+                        cout << "Ошибка ввода ключа!\n";
+                        manager.unloadLibrary();
+                        break;
+                    }
+
+                } else {
+
+                    random_device rd;
+                    mt19937 generator(rd());
+                    uniform_int_distribution<uint32_t> dist(0, UINT32_MAX);
+
+                    for (int i = 0; i < 8; i++) {
+                        key[i] = dist(generator);
+                    }
+
+                    cout << "\nСгенерированный ключ:\n";
+
+                    for (int i = 0; i < 8; i++) {
+                        printf("key[%d] = %08X\n", i, key[i]);
+                    }
+                }
+
+                uint8_t keyBytes[32];
+
+                wordsToBytesBigEndian(key, keyBytes, 8);
+
+                switch (static_cast<Mode>(modeChoice)) {
+
+                    case Mode::TEXT: {
+
+                        vector<uint8_t> inputData;
+
+                        if (!inputTextData(inputData)) {
+                            break;
+                        }
+
+                        try {
+
+                            vector<uint8_t> encryptedData;
+                            vector<uint8_t> decryptedData;
+
+                            manager.serpentEncrypt(inputData, encryptedData, keyBytes);
+
+                            manager.serpentDecrypt(encryptedData, decryptedData, keyBytes);
+
+                            cout << "\nЗашифрованный текст:\n";
+
+                            for (uint8_t byte : encryptedData) {
+                                cout << static_cast<int>(byte) << ' ';
+                            }
+
+                            cout << "\n\nРасшифрованный текст:\n";
+
+                            for (uint8_t byte : decryptedData) {
+                                cout << static_cast<char>(byte);
+                            }
+
+                            cout << '\n';
+
+                        } catch (const exception& error) {
+
+                            cout << "Ошибка: " << error.what() << '\n';
+                        }
+
+                        break;
+                    }
+
+                    case Mode::FILE: {
+
+                        string inputPath;
+
+                        if (!inputFilePath(inputPath)) {
+                            break;
+                        }
+
+                        try {
+
+                            vector<uint8_t> inputData = readFile(inputPath);
+
+                            vector<uint8_t> encryptedData;
+                            vector<uint8_t> decryptedData;
+
+                            manager.serpentEncrypt(inputData, encryptedData, keyBytes);
+
+                            filesystem::path path(inputPath);
+
+                            string encryptedPath = "encrypted_" + path.filename().string() + ".serpent";
+
+                            writeFile(encryptedPath, encryptedData);
+
+                            manager.serpentDecrypt(encryptedData, decryptedData, keyBytes);
+
+                            string decryptedPath = "decrypted_" + path.filename().string();
+
+                            writeFile(decryptedPath, decryptedData);
+
+                            cout << "\nСоздан файл:\n" << encryptedPath << '\n';
+                            cout << "\nСоздан файл:\n" << decryptedPath << '\n';
+
+                        } catch (const exception& error) {
+
+                            cout << "Ошибка: " << error.what() << '\n';
+                        }
+
+                        break;
+                    }
+
+                    default:
+                        cout << "Некорректный режим\n";
+                }
+
+                manager.unloadLibrary();
+
+                break;
+            }
+        
+
+            case Menu::CHACHA20: {
+
+                if (!manager.loadLibrary("./libChaCha20.so")) {
+                    cout << "Алгоритм недоступен\n";
+                    break;
+                }
+
+                int modeChoice;
+
+                if (!inputMode(modeChoice)) {
+                    manager.unloadLibrary();
+                    break;
+                }
+
+                int keyMode;
+
+                if (!inputKeyMode(keyMode,
+                                "Ввести ключ и nonce вручную", "Сгенерировать ключ и nonce")) {
+                    manager.unloadLibrary();
+                    break;
+                }
+
+                uint32_t key[8];
+                uint32_t nonce[3];
+
+                if (keyMode == 1) {
+
+                    if (!inputChaCha20Key(key, nonce)) {
+                        cout << "Ошибка ввода ключа или nonce!\n";
+                        manager.unloadLibrary();
+                        break;
+                    }
+
+                } else {
+
+                    random_device rd;
+                    mt19937 generator(rd());
+                    uniform_int_distribution<uint32_t> dist(0, UINT32_MAX);
+
+                    for (int i = 0; i < 8; i++) {
+                        key[i] = dist(generator);
+                    }
+
+                    for (int i = 0; i < 3; i++) {
+                        nonce[i] = dist(generator);
+                    }
+
+                    cout << "\nСгенерированный ключ:\n";
+
+                    for (int i = 0; i < 8; i++) {
+                        printf("key[%d] = %08X\n", i, key[i]);
+                    }
+
+                    cout << "\nСгенерированный nonce:\n";
+
+                    for (int i = 0; i < 3; i++) {
+                        printf("nonce[%d] = %08X\n", i, nonce[i]);
+                    }
+                }
+
+                uint8_t keyBytes[32];
+                uint8_t nonceBytes[12];
+
+                wordsToBytesLittleEndian(key, keyBytes, 8);
+                wordsToBytesLittleEndian(nonce, nonceBytes, 3);
+
+                switch (static_cast<Mode>(modeChoice)) {
+
+                    case Mode::TEXT: {
+
+                        vector<uint8_t> inputData;
+
+                        if (!inputTextData(inputData)) {
+                            break;
+                        }
+
+                        try {
+
+                            vector<uint8_t> encryptedData;
+                            vector<uint8_t> decryptedData;
+
+                            manager.chacha20Encrypt(inputData, encryptedData, keyBytes, nonceBytes);
+
+                            manager.chacha20Decrypt(encryptedData, decryptedData, keyBytes, nonceBytes);
+
+                            cout << "\nЗашифрованный текст:\n";
+
+                            for (uint8_t byte : encryptedData) {
+                                cout << static_cast<int>(byte) << ' ';
+                            }
+
+                            cout << "\n\nРасшифрованный текст:\n";
+
+                            for (uint8_t byte : decryptedData) {
+                                cout << static_cast<char>(byte);
+                            }
+
+                            cout << '\n';
+
+                        } catch (const exception& error) {
+
+                            cout << "Ошибка: " << error.what() << '\n';
+                        }
+
+                        break;
+                    }
+
+                    case Mode::FILE: {
+
+                        string inputPath;
+
+                        if (!inputFilePath(inputPath)) {
+                            break;
+                        }
+
+                        try {
+
+                            vector<uint8_t> inputData = readFile(inputPath);
+
+                            vector<uint8_t> encryptedData;
+                            vector<uint8_t> decryptedData;
+
+                            manager.chacha20Encrypt(inputData, encryptedData, keyBytes, nonceBytes);
+
+                            filesystem::path path(inputPath);
+
+                            string encryptedPath = "encrypted_" + path.filename().string() + ".chacha";
+
+                            writeFile(encryptedPath, encryptedData);
+
+                            manager.chacha20Decrypt(encryptedData, decryptedData, keyBytes, nonceBytes);
+
+                            string decryptedPath = "decrypted_" + path.filename().string();
+
+                            writeFile(decryptedPath, decryptedData);
+
+                            cout << "\nСоздан файл:\n" << encryptedPath << '\n';
+                            cout << "\nСоздан файл:\n" << decryptedPath << '\n';
+
+                        } catch (const exception& error) {
+
+                            cout << "Ошибка: " << error.what() << '\n';
+                        }
+
+                        break;
+                    }
+
+                    default:
+                        cout << "Некорректный режим\n";
+                }
+
+                manager.unloadLibrary();
+
+                break;
+            }
+
             case Menu::EXIT:
-
-                cout << "Завершение программы\n";
+                cout << "Завершение работы программы...\n";
                 break;
 
             default:
-
-                cout << "Некорректный пункт меню\n";
+                cout << "Некорректный пункт меню!\n";
         }
 
     } while (choice != static_cast<int>(Menu::EXIT));
 
     return 0;
-
 }

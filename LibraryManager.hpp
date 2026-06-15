@@ -35,6 +35,21 @@ typedef void (*XorCipherFunc)(
     const char*
 );
 
+// ChaCha20
+typedef void (*ChaCha20CipherFunc)(
+    const vector<uint8_t>&,  
+    vector<uint8_t>&,   
+    const uint8_t*,        
+    const uint8_t*        
+);
+
+// Serpent
+typedef void (*SerpentCipherFunc)(
+    const vector<uint8_t>&, 
+    vector<uint8_t>&,       
+    const uint8_t*    
+);
+
 //Название алгоритма
 typedef const char* (*GetNameFunc)();
 
@@ -63,4 +78,10 @@ public:
 
     XorCipherFunc xorEncrypt;
     XorCipherFunc xorDecrypt;
+
+    ChaCha20CipherFunc chacha20Encrypt;
+    ChaCha20CipherFunc chacha20Decrypt;
+
+    SerpentCipherFunc serpentEncrypt;
+    SerpentCipherFunc serpentDecrypt;
 };
