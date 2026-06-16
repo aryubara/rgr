@@ -44,3 +44,21 @@ vector<uint8_t> affineDecrypt(const vector<uint8_t>& data, uint32_t a, uint32_t 
     }
     return result;
 }
+
+
+//ИНТЕРФЕЙС ДИНАМИЧЕСКОЙ БИБЛИОТЕКИ
+extern "C" {
+
+const char* getName() {
+    return "Affine";
+}
+
+void encrypt(const vector<uint8_t>& inputData, vector<uint8_t>& outputData, uint32_t a, uint32_t b) { 
+    outputData = affineEncrypt(inputData, a, b);
+}
+
+void decrypt(const vector<uint8_t>& inputData, vector<uint8_t>& outputData, uint32_t a, uint32_t b) {
+    outputData = affineDecrypt(inputData, a, b);
+}
+
+}

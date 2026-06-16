@@ -134,3 +134,20 @@ vector<uint8_t> teaDecrypt(const vector<uint8_t>& cipherData, const uint32_t key
 
     return result;
 }
+
+
+extern "C" {
+
+const char* getName() {
+    return "TEA";
+}
+
+void encrypt(const vector<uint8_t>& inputData, vector<uint8_t>& outputData, const uint32_t key[4]) {
+    outputData = teaEncrypt(inputData, key);
+}
+
+void decrypt(const vector<uint8_t>& inputData, vector<uint8_t>& outputData, const uint32_t key[4]) {
+    outputData = teaDecrypt(inputData, key);
+}
+
+}

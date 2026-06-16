@@ -1,31 +1,68 @@
-CXX = g++
-CXXFLAGS = -std=c++20 -Wall -Wextra -I.
-LDFLAGS = -L. -lAffine -lTEA
+CXX := g++
+CXXFLAGS := -std=c++17 -Wall -Wextra -I. -IUtilities
+LDFLAGS := -ldl
+SHELL := /bin/bash
 
-TARGET = EncryptionAlgorithmRGR
+TARGET = RGREncryptionAlgorithmRGR
 
-# ИСХОДНЫЕ ФАЙЛЫ
-SRC = main.cpp Utilities/input.cpp Utilities/fileManager.cpp 
+# Исходные файлы программы
+SRC := main.cpp \
+       LibraryManager.cpp \
+       Utilities/fileManager.cpp \
+       Utilities/cryptoMath.cpp
 
-# ЦЕЛЬ
-all: libAffine.so libTEA.so $(TARGET)
+# Динамические библиотеки
+LIBS := libAffine.so \
+        libTEA.so \
+        libScytale.so \
+        libXOR.so \
+        libSerpent.so \
+        libChaCha20.so
 
-# СБОРКА БИБЛИОТЕК
+# Сборка всего проекта
+all: $(LIBS) $(TARGET)
 
-libAffine.so: 
-	$(CXX) $(CXXFLAGS) -shared -fPIC Affine/affine.cpp Utilities/cryptoMath.cpp -o libAffine.so 
+# Сборка библиотек
+libAffine.so:
+	$(CXX) $(CXXFLAGS) -shared -fPIC \
+	Affine/affine.cpp Utilities/cryptoMath.cpp \
+	-o $@
 
-libTEA.so: 
-	$(CXX) $(CXXFLAGS) -shared -fPIC TEA/tea.cpp -o libTEA.so
+libTEA.so:
+	$(CXX) $(CXXFLAGS) -shared -fPIC \
+	TEA/tea.cpp \
+	-o $@
 
+libScytale.so:
+	$(CXX) $(CXXFLAGS) -shared -fPIC \
+	Scytale/scytale.cpp \
+	-o $@
 
-# СБОРКА
+libXOR.so:
+	$(CXX) $(CXXFLAGS) -shared -fPIC \
+	XOR/xor.cpp \
+	-o $@
+
+libSerpent.so:
+	$(CXX) $(CXXFLAGS) -shared -fPIC \
+	Serpent/Serpent.cpp \
+	-o $@
+
+libChaCha20.so:
+	$(CXX) $(CXXFLAGS) -shared -fPIC \
+	ChaCha20/ChaCha20.cpp \
+	-o $@
+
+# Сборка основной программы
 $(TARGET): $(SRC)
-	$(CXX) $(CXXFLAGS) $(SRC) $(LDFLAGS) -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $(SRC) $(LDFLAGS) -o $@
 
-# ЗАПУСК
+# Запуск программы
 run: all
 	LD_LIBRARY_PATH=. ./$(TARGET)
 
+# Очистка проекта
 clean:
-	rm -f $(TARGET) libAffine.so libTEA.so
+	rm -f $(TARGET) $(LIBS)
+
+.PHONY: all run clean
