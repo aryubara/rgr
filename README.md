@@ -1,24 +1,40 @@
 # СТРУКТУРА ПРОЕКТА
 
+<<<<<<< HEAD
 ## Makefile - сборка проекта
 
-## main - основной файл программы
+## main.cpp - основной файл программы
 
+## LibraryManager.cpp -
+## LibraryManager.hpp - 
 
 ### Affine/
-####    - affine.cpp - алгоритм "Аффинный шифр"
-####    - affine.h - заголовочный файл
+####    - affine.cpp
+####    - affine.h
 
 ### TEA/
-####    - tea.cpp - алгоритм "TEA"
-####    - tea.h - заголовочный файл
+####    - tea.cpp
+####    - tea.h
+
+### ChaCha20/   
+####    - ChaCha20.cpp
+####    - ChaCha20.h
+
+### XOR/
+####    - xor.cpp
+####    - xor.h
+
+### Serpent/
+####    - Serpemt.cpp
+####    - Serpent.h
+
+### Scytale/
+####    - scytale.cpp
+####    - scytale.h
 
 ### Utilities/
-####   - cryptoMath.cpp - математические функции для вычислений
-####    - cryptoMath.h - заголовный файл
-
-####    - fileManager.cpp - файл для чтения и записи файлов 
-####    - fileManager.h - заголовочный файл
-
-####    - input.cpp - ввод и вывод для обработки алгоритмов шифрования
-####    - input.h - заголовочный файл 
+####    - cryptoMath.cpp
+####    - cryptoMath.h
+####     - crypto_utils.h
+####    - fileManager.cpp
+####    - fileManager.h
