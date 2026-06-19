@@ -98,8 +98,8 @@ void serpent_key_schedule(const uint32_t key[8], uint32_t subkeys[132]) { // Ñ€Ð
             nibble0 = S[sbox_index][nibble0]; nibble1 = S[sbox_index][nibble1]; nibble2 = S[sbox_index][nibble2]; nibble3 = S[sbox_index][nibble3];
             nibble4 = S[sbox_index][nibble4]; nibble5 = S[sbox_index][nibble5]; nibble6 = S[sbox_index][nibble6]; nibble7 = S[sbox_index][nibble7];
             
-            subkeys[4*key_ind+word_ind] = nibble0 | (nibble0<<4) | (nibble0<<8) | (nibble0<<12) |
-             (nibble0<<16) | (nibble0<<20) | (nibble0<<24) | (nibble0<<28);
+            subkeys[4*key_ind+word_ind] = nibble0 | (nibble1<<4) | (nibble2<<8) | (nibble3<<12) |
+             (nibble4<<16) | (nibble5<<20) | (nibble6<<24) | (nibble7<<28);
         }
     }
 }
