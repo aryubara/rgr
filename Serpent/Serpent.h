@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#define ROTL(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
+
 const int SERPENT_BLOCK_SIZE = 16;  // 128 бит
 const int SERPENT_KEY_SIZE = 32;     // 256 бит
 const int SERPENT_ROUNDS = 32;
