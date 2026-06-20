@@ -178,6 +178,7 @@ void chacha20_encrypt(vector <uint8_t>& plaintext, const uint32_t key_words[8], 
         cout << dec << setfill(' ') << "\n";
         
         counter++;
+        cout << "Счетчик увеличен до: " << counter << "\n";
     }
     
 }
@@ -188,7 +189,9 @@ const char* getName() {
     return "ChaCha20";
 }
 
-void encrypt(const vector<uint8_t>& input, vector<uint8_t>& output, const uint8_t* key, const uint8_t* nonce) {    
+void encrypt(const vector<uint8_t>& input, vector<uint8_t>& output, const uint8_t* key, const uint8_t* nonce) {
+    cout << "Размер входных данных: " << input.size() << " байт\n";
+    
     uint32_t key_words[8];
     uint32_t nonce_words[3];
     
