@@ -43,7 +43,6 @@ int main() {
         cout << "5 - Serpent\n";
         cout << "6 - ChaCha20\n";
         cout << "0 - Выход\n";
-        cout << "Выберите алгоритм: ";
 
         inputNumber(choice, "Выберите алгоритм: ", 0, 6);
 

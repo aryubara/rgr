@@ -4,10 +4,16 @@
 #include <vector>
 #include <cstdint>
 #include <string>
+#include <iostream>
+#include <iomanip>
 
 using namespace std;
 
 #define ROTL(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
+
+// Функции для вывода состояния
+void printState(const vector<uint32_t>& state, const string& label);
+void printBytes(const uint8_t* data, size_t size, const string& label);
 
 void quarterRound(uint32_t &a, uint32_t &b, uint32_t &c, uint32_t &d);
 
